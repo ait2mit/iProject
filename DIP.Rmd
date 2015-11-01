@@ -1,0 +1,124 @@
+Lession 4
+
+# Loading Data
+
+
+```{r}
+library(ggplot2)
+pf=read.csv('LoanStats3b.txt', sep=',')
+```
+
+Investigating Scatter plot
+```{r}
+qplot(age, friend_count, data=pf)
+
+```
+##ggolot
+```{r}
+ggplot(aes(x=age, y=friend_count), data=pf)+
+  geom_jitter(alpha=1/20, position=position_jitter(h=0))+ 
+  # Expla: http://forums.udacity.com/questions/100163811/getting-an-error-with-coord_trans#ud651
+  #geom_point(alpha=1/20)+ 
+  xlim(13,90)+
+  coord_trans(y='sqrt')
+
+```
+# Study friendships_initiated (y) and age (x)
+```{r}
+ggplot(aes(age,friendships_initiated, color=gender), data=subset(pf, !is.na(gender)))+
+  geom_point(alpha=1/20)+
+  facet_wrap(~gender)+
+  xlim(13,90)+
+  ylim(0,1000)
+```
+
+##Conditional Mean
+```{r}
+
+library(dplyr)
+age_group<-group_by(pf, age)
+pf.fc_by_age<-summarise(age_group, 
+          friend_count_mean=mean(friend_count),
+          friend_count_median=median(friend_count),
+          n=n())
+
+pf.fc_by_age<-arrange(pf.fc_by_age, age)
+ggplot(aes(age,friend_count_mean), data=pf.fc_by_age)+geom_line()
+ggplot(aes(age,friend_count_median), data=pf.fc_by_age)+geom_line()
+```
+
+
+```{r}
+
+ggplot(aes(x=age, y=friend_count), data=pf)+
+  geom_jitter(alpha=1/20, position=position_jitter(h=0), color='orange')+ 
+  # Expla: http://forums.udacity.com/questions/100163811/getting-an-error-with-coord_trans#ud651
+  #geom_point(alpha=1/20)+ 
+  xlim(13,90)+
+  coord_trans(y='sqrt')+
+  geom_line(stat='summary', fun.y=mean)+
+  geom_line(stat='summary', fun.y=quantile, probs=0.1, linetype=2, color='blue')+
+  geom_line(stat='summary', fun.y=quantile, probs=0.5, linetype=1, color='blue')+
+  geom_line(stat='summary', fun.y=quantile, probs=0.9, linetype=2, color='blue')+
+  coord_cartesian(ylim=c(0,1000))
+
+```
+Corelation coefficinet
+
+```{r}
+cores<-cor.test(pf$age, pf$friend_count, method='pearson')
+# Alternate way
+corAlt<-with(data=pf, cor.test(age, friend_count, method='pearson') )
+
+#Age <70
+corAlt70<-with(data=subset(pf, age<70), cor.test(age, friend_count, method='pearson') )
+```
+# Like study
+```{r}
+
+ggplot(aes(www_likes_received,likes_received ), data=pf)+geom_point(alpha=0.2)+
+  geom_line(stat='summary', fun.y=mean)+
+  geom_smooth(method=lm, color='orange')+
+  xlim(0, quantile(pf$www_likes_received, 0.95))+
+  ylim(0, quantile(pf$likes_received, 0.95))
+
+corLike<-with(data=pf, cor.test(www_likes_received,likes_received) )
+
+```
+Further COR investigation
+```{r}
+install.packages("alr3")
+library(alr3)
+data(Mitchell)
+```
+
+```{r}
+ggplot(aes(Month, Temp), data=Mitchell)+geom_point()+
+  scale_x_discrete(breaks=seq(0, 203, 12))
+with(cor.test(Month, Temp), data=Mitchell)
+```
+```{r}
+pf$age_with_months<-pf$age+(12-df$dob_month)/12
+```
+```{r}
+age_group_by_months<-group_by(pf, age_with_months)
+
+pf.fc_by_age_month<-summarise(age_group_by_months, 
+          friend_count_mean=mean(friend_count),
+          friend_count_median=median(friend_count),
+          n=n())
+pf.fc_by_age_month_sorted<-arrange(pf.fc_by_age_month,age_with_months)
+```
+```{r}
+library(ggplot2)
+ggplot(aes(age_with_months, friend_count_mean), data=subset(pf.fc_by_age_month,age_with_months<71 ))+geom_line(color='blue')+
+  geom_smooth()
+
+```
+
+```{r}
+ggplot(data = diamonds, aes(x = depth, y = price)) + 
+  geom_point(alpha=1/100, breaks=seq(0, 80, 2))
+```
+
+

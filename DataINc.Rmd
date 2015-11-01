@@ -1,0 +1,28 @@
+```{r}
+
+
+pd=read.csv('Crimes_-_2001_to_present.csv', sep=',')
+tr<-sort(summary(pd$Primary.Type),decreasing = TRUE)[1:20] # To 20 crimes
+tb<-sort(summary(pd$Primary.Type),decreasing = TRUE) 
+
+```
+
+```{r}
+library(dplyr)
+
+par(mfrow=c(1,1))
+par(mar=c(10.1,4.1,4.1,2.1))
+g<-barplot(tr[1:20], col=rainbow(20), ylim=c(0,max(tr)*1.2), horiz = FALSE, xlab = "Types of crimes",ylab="Number of Crimes", main = "Top 20 Cimes in Chicago", names.arg="")
+text(g, 10, labels=names(tr),cex = .75,adj=0, srt=90, xpd=TRUE)
+
+
+```
+```{r}
+fd<-as.factor(na.omit(pd$Ward))
+tb<-sort(summary(fd),decreasing = TRUE)# To 20 crime
+
+g1<-barplot(tb[1:20], col=rainbow(20), ylim=c(0,max(tb)*1.2), horiz = FALSE, xlab = "Ward No",ylab="Number of Crimes", main = "Top 20 Crime Wards ", names.arg="")
+text(g1, 10, labels=names(tb),cex = .75,adj=0, srt=90, xpd=TRUE)
+```
+
+
